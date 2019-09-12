@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Булат Нупбаев](https://up.htmlacademy.ru/javascript/18/user/1039331).
-* Наставник: `Неизвестно`.
+* Наставник: [Владимир Кабыш](https://htmlacademy.ru/profile/kabysh).
 
 ---
 
