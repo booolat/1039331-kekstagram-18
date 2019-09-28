@@ -18,15 +18,15 @@ var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-var getCommentsArray = function (commentsAmount) {
+var getCommentsArray = function () {
   var comment = {
     avatar: 'img/avatar-' + getRandomNumber(1, 6) + '.svg',
     message: commentTexts[getRandomNumber(0, 5)],
     name: commentAuthors[getRandomNumber(0, 8)]
   };
   var commentsArray = [];
-  for (var i = 0; i < commentsAmount; i++) {
-    commentsAmount = getRandomNumber(1, 100);
+  var maxComments = getRandomNumber(0, 10);
+  for (var i = 0; i < maxComments; i++) {
     commentsArray.push(comment);
   }
   return commentsArray;
@@ -51,24 +51,23 @@ var createMock = function (selectedPhotos) {
 
 var createMockArray = function () {
   var selectedPhotos = [];
-  // почему это объявлено здесь, а не в самой функции selectPhoto или до неё?
   var mockArray = [];
   for (var i = 0; i < MOCK_AMOUNT; i++) {
     mockArray.push(createMock(selectedPhotos));
-  // почему createMock Здесь вызывается с аргументом selectedPhotos?
   }
   return mockArray;
 };
 var mockArray = createMockArray();
 
 for (var i = 0; i < MOCK_AMOUNT; i++) {
+
+  var currentMock = mockArray[i];
   var photoMock = mockTemplate.cloneNode(true);
 
-  photoMock.querySelector('.picture__img').setAttribute('src', mockArray[i].url);
-  photoMock.querySelector('.picture__likes').textContent = mockArray[i].likes;
-  photoMock.querySelector('.picture__comments').textContent = mockArray[i].comments.length;
+  photoMock.querySelector('.picture__img').setAttribute('src', currentMock.url);
+  photoMock.querySelector('.picture__likes').textContent = currentMock.likes;
+  photoMock.querySelector('.picture__comments').textContent = currentMock.comments.length;
   fragment.appendChild(photoMock);
 }
 
 photoContainer.appendChild(fragment);
-// debugger
