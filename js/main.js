@@ -6,6 +6,8 @@ var mockTemplate = document.querySelector('#picture').content;
 
 var fragment = document.createDocumentFragment();
 
+var MOCK_AMOUNT = 25;
+
 var commentTexts = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
   'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
@@ -16,33 +18,55 @@ var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-var createMock = function () {
-  var mock = {
-    url: 'photos/' + getRandomNumber(1, 25) + '.jpg',
+var getCommentsArray = function (commentsAmount) {
+  var comment = {
+    avatar: 'img/avatar-' + getRandomNumber(1, 6) + '.svg',
+    message: commentTexts[getRandomNumber(0, 5)],
+    name: commentAuthors[getRandomNumber(0, 8)]
+  };
+  var commentsArray = [];
+  for (var i = 0; i < commentsAmount; i++) {
+    commentsAmount = getRandomNumber(1, 100);
+    commentsArray.push(comment);
+  }
+  return commentsArray;
+};
+
+var createMock = function (selectedPhotos) {
+  function selectPhoto() {
+    var current = getRandomNumber(1, MOCK_AMOUNT);
+    if (selectedPhotos.includes(current)) {
+      return selectPhoto();
+    }
+    selectedPhotos.push(current);
+    return current;
+  }
+  return {
+    url: 'photos/' + selectPhoto() + '.jpg',
     description: 'Описание фотографии',
     likes: getRandomNumber(15, 200),
-    comments: [{avatar: 'img/avatar-' + getRandomNumber(1, 6) + '.svg', message: commentTexts[getRandomNumber(0, 5)], name: commentAuthors[getRandomNumber(0, 8)]}]
+    comments: getCommentsArray()
   };
-  return mock;
 };
 
 var createMockArray = function () {
+  var selectedPhotos = [];
+  // почему это объявлено здесь, а не в самой функции selectPhoto или до неё?
   var mockArray = [];
-  for (var i = 0; i < 25; i++) {
-    mockArray.push(createMock());
+  for (var i = 0; i < MOCK_AMOUNT; i++) {
+    mockArray.push(createMock(selectedPhotos));
+  // почему createMock Здесь вызывается с аргументом selectedPhotos?
   }
   return mockArray;
 };
-
 var mockArray = createMockArray();
 
-for (var i = 0; i < 25; i++) {
+for (var i = 0; i < MOCK_AMOUNT; i++) {
   var photoMock = mockTemplate.cloneNode(true);
 
   photoMock.querySelector('.picture__img').setAttribute('src', mockArray[i].url);
   photoMock.querySelector('.picture__likes').textContent = mockArray[i].likes;
-  photoMock.querySelector('.picture__comments').textContent = mockArray[i].comments;
-
+  photoMock.querySelector('.picture__comments').textContent = mockArray[i].comments.length;
   fragment.appendChild(photoMock);
 }
 
