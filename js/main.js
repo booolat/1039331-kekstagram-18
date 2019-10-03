@@ -6,7 +6,11 @@ var fragment = document.createDocumentFragment();
 var uploadField = document.querySelector('.img-upload__input');
 var editingForm = document.querySelector('.img-upload__overlay');
 var editingCloseButton = editingForm.querySelector('.img-upload__cancel');
-var zoomStep = 25;
+var zoomInButton = editingForm.querySelector('.scale__control--bigger');
+var zoomOutButton = editingForm.querySelector('.scale__control--smaller');
+var scaleInput = editingForm.querySelector('.scale__control--value');
+var uploadPreview = document.querySelector('.img-upload__preview');
+var previewImg = uploadPreview.querySelector('img');
 
 var commentTexts = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
   'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
@@ -16,6 +20,9 @@ var commentAuthors = ['Порфирий', 'Цифровой олень', 'Кур
 
 var MOCK_AMOUNT = 25;
 var ESC_KEY = 27;
+var ZOOM_STEP = 25;
+var MAX_ZOOM = 100;
+var MIN_ZOOM = 25;
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -81,29 +88,73 @@ var imgUploadHandler = function () {
   document.addEventListener('keydown', function (evt) {
     if (evt.keyCode === ESC_KEY) {
       editingForm.classList.add('hidden');
+      uploadField.value = '';
     }
   });
 };
 
 var closeButtonClickHandler = function () {
   editingForm.classList.add('hidden');
+  uploadField.value = '';
 };
 
 uploadField.addEventListener('change', imgUploadHandler);
 
 editingCloseButton.addEventListener('click', closeButtonClickHandler);
 
-var zoomInButton = editingForm.querySelector('.scale__control--bigger');
-var zoomOutButton = editingForm.querySelector('.scale__control--smaller');
-var scaleInput = editingForm.querySelector('.scale__control--value');
-// var scaleDefaultValue = 55;
+var zoomInClickHandler = function () {
+  scaleInput.value = parseInt(scaleInput.value, 10) + ZOOM_STEP;
+  if (scaleInput.value > MAX_ZOOM) {
+    scaleInput.value = MAX_ZOOM;
+  }
+  scaleInput.value = scaleInput.value + '%';
+  var currentScale = Number(previewImg.style.transform.slice(6, -1));
+  currentScale = currentScale + ZOOM_STEP * 0.01;
+  if (currentScale > MAX_ZOOM * 0.01) {
+    currentScale = MAX_ZOOM * 0.01;
+  }
+  previewImg.style.transform = 'scale(' + currentScale + ')';
+};
 
-zoomInButton.addEventListener('click', function () {
-  scaleInput.value = parseInt(scaleInput.value, 10) + zoomStep + '%';
-});
+zoomInButton.addEventListener('click', zoomInClickHandler);
 
-zoomOutButton.addEventListener('click', function () {
-  scaleInput.value = parseInt(scaleInput.value, 10) - zoomStep + '%';
-});
+var zoomOutClickHandler = function () {
+  scaleInput.value = parseInt(scaleInput.value, 10) - ZOOM_STEP;
+  if (scaleInput.value < MIN_ZOOM) {
+    scaleInput.value = MIN_ZOOM;
+  }
+  scaleInput.value = scaleInput.value + '%';
+  var currentScale = previewImg.style.transform.slice(6, -1);
+  currentScale = currentScale - ZOOM_STEP * 0.01;
+  if (currentScale < MIN_ZOOM * 0.01) {
+    currentScale = MIN_ZOOM * 0.01;
+  }
+  previewImg.style.transform = 'scale(' + currentScale + ')';
+};
+
+zoomOutButton.addEventListener('click', zoomOutClickHandler);
+
+// var effectSelectors =
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // debugger
