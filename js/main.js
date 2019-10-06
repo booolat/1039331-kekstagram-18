@@ -134,27 +134,66 @@ var zoomOutClickHandler = function () {
 
 zoomOutButton.addEventListener('click', zoomOutClickHandler);
 
-// var effectSelectors =
+var effectsList = document.querySelector('.effects__list');
+var effectLevel = document.querySelector('.img-upload__effect-level');
 
+var fxListCLickHandler = function (evt) {
+  if (evt.target.id.includes('effect-none')) {
+    previewImg.classList = '';
+    effectLevel.classList.add('hidden');
+  }
+  if (evt.target.id.includes('effect-chrome')) {
+    previewImg.classList = '';
+    previewImg.classList.add('effects__preview--chrome');
+    effectLevel.classList.remove('hidden');
+  }
+  if (evt.target.id.includes('effect-sepia')) {
+    previewImg.classList = '';
+    previewImg.classList.add('effects__preview--sepia');
+    effectLevel.classList.remove('hidden');
+  }
+  if (evt.target.id.includes('effect-marvin')) {
+    previewImg.classList = '';
+    previewImg.classList.add('effects__preview--marvin');
+    effectLevel.classList.remove('hidden');
+  }
+  if (evt.target.id.includes('effect-phobos')) {
+    previewImg.classList = '';
+    previewImg.classList.add('effects__preview--phobos');
+    effectLevel.classList.remove('hidden');
+  }
+  if (evt.target.id.includes('effect-heat')) {
+    previewImg.classList = '';
+    previewImg.classList.add('effects__preview--heat');
+    effectLevel.classList.remove('hidden');
+  }
+};
 
+effectsList.addEventListener('click', fxListCLickHandler);
 
+var hashtagField = document.querySelector('.text__hashtags');
 
+var hashtagInputHandler = function (evt) {
+  var target = evt.target;
+  var tagArray = evt.target.value.split(' ');
+  for (var j = 0; j <= tagArray.length - 1; j++) {
+    // if (tagArray[j] === tagArray[0] || tagArray[1] || tagArray[2] || tagArray[3] || tagArray[4] || tagArray[5]) {
+    //   target.setCustomValidity('Хештеги не должны повторяться');
+    // } else
+    if (tagArray.length > 5) {
+      target.setCustomValidity('Не больше 5 хештегов');
+    } else if (tagArray[j].length < 2) {
+      target.setCustomValidity('Минимальная длина хештега — 2 символа');
+    } else if (tagArray[j].length > 20) {
+      target.setCustomValidity('Максимальная длина хештега — 20 символов');
+    } else if (tagArray[j].charAt(0) !== '#') {
+      target.setCustomValidity('Хештег должен начинаться с #');
+    } else {
+      target.setCustomValidity('');
+    }
+  }
+};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+hashtagField.addEventListener('input', hashtagInputHandler);
 
 // debugger
