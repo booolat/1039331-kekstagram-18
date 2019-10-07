@@ -138,34 +138,43 @@ var effectsList = document.querySelector('.effects__list');
 var effectLevel = document.querySelector('.img-upload__effect-level');
 
 var fxListCLickHandler = function (evt) {
-  if (evt.target.id.includes('effect-none')) {
-    previewImg.classList = '';
-    effectLevel.classList.add('hidden');
-  }
-  if (evt.target.id.includes('effect-chrome')) {
-    previewImg.classList = '';
-    previewImg.classList.add('effects__preview--chrome');
-    effectLevel.classList.remove('hidden');
-  }
-  if (evt.target.id.includes('effect-sepia')) {
-    previewImg.classList = '';
-    previewImg.classList.add('effects__preview--sepia');
-    effectLevel.classList.remove('hidden');
-  }
-  if (evt.target.id.includes('effect-marvin')) {
-    previewImg.classList = '';
-    previewImg.classList.add('effects__preview--marvin');
-    effectLevel.classList.remove('hidden');
-  }
-  if (evt.target.id.includes('effect-phobos')) {
-    previewImg.classList = '';
-    previewImg.classList.add('effects__preview--phobos');
-    effectLevel.classList.remove('hidden');
-  }
-  if (evt.target.id.includes('effect-heat')) {
-    previewImg.classList = '';
-    previewImg.classList.add('effects__preview--heat');
-    effectLevel.classList.remove('hidden');
+  var targetID = evt.target.id;
+  switch (targetID) {
+
+    case 'effect-none':
+      previewImg.classList = '';
+      effectLevel.classList.add('hidden');
+      break;
+
+    case 'effect-chrome':
+      previewImg.classList = '';
+      previewImg.classList.add('effects__preview--chrome');
+      effectLevel.classList.remove('hidden');
+      break;
+
+    case 'effect-sepia':
+      previewImg.classList = '';
+      previewImg.classList.add('effects__preview--sepia');
+      effectLevel.classList.remove('hidden');
+      break;
+
+    case 'effect-marvin':
+      previewImg.classList = '';
+      previewImg.classList.add('effects__preview--marvin');
+      effectLevel.classList.remove('hidden');
+      break;
+
+    case 'effect-phobos':
+      previewImg.classList = '';
+      previewImg.classList.add('effects__preview--phobos');
+      effectLevel.classList.remove('hidden');
+      break;
+
+    case 'effect-heat':
+      previewImg.classList = '';
+      previewImg.classList.add('effects__preview--heat');
+      effectLevel.classList.remove('hidden');
+      break;
   }
 };
 
@@ -180,6 +189,7 @@ var hashtagInputHandler = function (evt) {
     // if (tagArray[j] === tagArray[0] || tagArray[1] || tagArray[2] || tagArray[3] || tagArray[4] || tagArray[5]) {
     //   target.setCustomValidity('Хештеги не должны повторяться');
     // } else
+    // Почему не работает?
     if (tagArray.length > 5) {
       target.setCustomValidity('Не больше 5 хештегов');
     } else if (tagArray[j].length < 2) {
@@ -195,5 +205,3 @@ var hashtagInputHandler = function (evt) {
 };
 
 hashtagField.addEventListener('input', hashtagInputHandler);
-
-// debugger
