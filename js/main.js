@@ -82,25 +82,34 @@ for (var i = 0; i < MOCK_AMOUNT; i++) {
 
 photoContainer.appendChild(fragment);
 
+
+// он же не должен удаляться, так?
+
 var imgUploadHandler = function () {
   editingForm.classList.remove('hidden');
-
-  document.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ESC_KEY) {
-      editingForm.classList.add('hidden');
-      uploadField.value = '';
-    }
-  });
+  editingCloseButton.addEventListener('click', closeButtonClickHandler);
+  document.addEventListener('keydown', closeButtonKeyHandler);
 };
 
 var closeButtonClickHandler = function () {
   editingForm.classList.add('hidden');
   uploadField.value = '';
+  // почему сброс значения поля не считается событием change и не запускает снова imgUploadHandler?
+  editingCloseButton.removeEventListener('click', closeButtonClickHandler);
+  document.removeEventListener('keydown', closeButtonKeyHandler);
+};
+
+var closeButtonKeyHandler = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
+    editingForm.classList.add('hidden');
+    uploadField.value = '';
+    editingCloseButton.removeEventListener('click', closeButtonClickHandler);
+    document.removeEventListener('keydown', closeButtonKeyHandler);
+  }
 };
 
 uploadField.addEventListener('change', imgUploadHandler);
-
-editingCloseButton.addEventListener('click', closeButtonClickHandler);
+// он же не должен удаляться, верно?
 
 var zoomInClickHandler = function () {
   scaleInput.value = parseInt(scaleInput.value, 10) + ZOOM_STEP;
