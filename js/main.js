@@ -3,7 +3,7 @@
 var photoContainer = document.querySelector('.pictures');
 var mockTemplate = document.querySelector('#picture').content;
 var fragment = document.createDocumentFragment();
-var uploadField = document.querySelector('.img-upload__input');
+var uploadField = document.querySelector('#upload-file');
 var editingForm = document.querySelector('.img-upload__overlay');
 var editingCloseButton = editingForm.querySelector('.img-upload__cancel');
 var zoomInButton = editingForm.querySelector('.scale__control--bigger');
@@ -11,6 +11,10 @@ var zoomOutButton = editingForm.querySelector('.scale__control--smaller');
 var scaleInput = editingForm.querySelector('.scale__control--value');
 var uploadPreview = document.querySelector('.img-upload__preview');
 var previewImg = uploadPreview.querySelector('img');
+var effectsList = document.querySelector('.effects__list');
+var effectLevel = document.querySelector('.img-upload__effect-level');
+var form = document.querySelector('#upload-select-image');
+// перепроверить всё и выбрать по ID где возможно
 
 var commentTexts = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
   'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
@@ -46,6 +50,7 @@ var createMock = function (selectedPhotos) {
   function selectPhoto() {
     var current = getRandomNumber(1, MOCK_AMOUNT);
     if (selectedPhotos.includes(current)) {
+      // переписать с использованием цикла
       return selectPhoto();
     }
     selectedPhotos.push(current);
@@ -82,34 +87,37 @@ for (var i = 0; i < MOCK_AMOUNT; i++) {
 
 photoContainer.appendChild(fragment);
 
-
-// он же не должен удаляться, так?
-
 var imgUploadHandler = function () {
   editingForm.classList.remove('hidden');
   editingCloseButton.addEventListener('click', closeButtonClickHandler);
   document.addEventListener('keydown', closeButtonKeyHandler);
+  zoomInButton.addEventListener('click', zoomInClickHandler);
+  zoomOutButton.addEventListener('click', zoomOutClickHandler);
+  effectsList.addEventListener('click', fxListCLickHandler);
+};
+
+var killFormListeners = function () {
+  editingCloseButton.removeEventListener('click', closeButtonClickHandler);
+  document.removeEventListener('keydown', closeButtonKeyHandler);
+  zoomInButton.removeEventListener('click', zoomInClickHandler);
+  zoomOutButton.removeEventListener('click', zoomOutClickHandler);
+  effectsList.removeEventListener('click', fxListCLickHandler);
+  form.addEventListener('submit', formHandler);
 };
 
 var closeButtonClickHandler = function () {
   editingForm.classList.add('hidden');
   uploadField.value = '';
-  // почему сброс значения поля не считается событием change и не запускает снова imgUploadHandler?
-  editingCloseButton.removeEventListener('click', closeButtonClickHandler);
-  document.removeEventListener('keydown', closeButtonKeyHandler);
+  killFormListeners();
 };
 
 var closeButtonKeyHandler = function (evt) {
   if (evt.keyCode === ESC_KEY) {
     editingForm.classList.add('hidden');
     uploadField.value = '';
-    editingCloseButton.removeEventListener('click', closeButtonClickHandler);
-    document.removeEventListener('keydown', closeButtonKeyHandler);
+    killFormListeners();
   }
 };
-
-uploadField.addEventListener('change', imgUploadHandler);
-// он же не должен удаляться, верно?
 
 var zoomInClickHandler = function () {
   scaleInput.value = parseInt(scaleInput.value, 10) + ZOOM_STEP;
@@ -125,8 +133,6 @@ var zoomInClickHandler = function () {
   previewImg.style.transform = 'scale(' + currentScale + ')';
 };
 
-zoomInButton.addEventListener('click', zoomInClickHandler);
-
 var zoomOutClickHandler = function () {
   scaleInput.value = parseInt(scaleInput.value, 10) - ZOOM_STEP;
   if (scaleInput.value < MIN_ZOOM) {
@@ -141,76 +147,110 @@ var zoomOutClickHandler = function () {
   previewImg.style.transform = 'scale(' + currentScale + ')';
 };
 
-zoomOutButton.addEventListener('click', zoomOutClickHandler);
-
-var effectsList = document.querySelector('.effects__list');
-var effectLevel = document.querySelector('.img-upload__effect-level');
-
 var fxListCLickHandler = function (evt) {
   var targetID = evt.target.id;
-  switch (targetID) {
+  var effectName = targetID.replace('effect-', '');
 
-    case 'effect-none':
-      previewImg.classList = '';
-      effectLevel.classList.add('hidden');
-      break;
-
-    case 'effect-chrome':
-      previewImg.classList = '';
-      previewImg.classList.add('effects__preview--chrome');
-      effectLevel.classList.remove('hidden');
-      break;
-
-    case 'effect-sepia':
-      previewImg.classList = '';
-      previewImg.classList.add('effects__preview--sepia');
-      effectLevel.classList.remove('hidden');
-      break;
-
-    case 'effect-marvin':
-      previewImg.classList = '';
-      previewImg.classList.add('effects__preview--marvin');
-      effectLevel.classList.remove('hidden');
-      break;
-
-    case 'effect-phobos':
-      previewImg.classList = '';
-      previewImg.classList.add('effects__preview--phobos');
-      effectLevel.classList.remove('hidden');
-      break;
-
-    case 'effect-heat':
-      previewImg.classList = '';
-      previewImg.classList.add('effects__preview--heat');
-      effectLevel.classList.remove('hidden');
-      break;
+  if (effectName === 'none') {
+    previewImg.classList = '';
+    effectLevel.classList.add('hidden');
+    return;
   }
+
+  previewImg.classList = 'effects__preview--' + effectName;
+  effectLevel.classList.remove('hidden');
 };
 
-effectsList.addEventListener('click', fxListCLickHandler);
+var validate = function (arr, input) {
+  var result = [];
 
-var hashtagField = document.querySelector('.text__hashtags');
-
-var hashtagInputHandler = function (evt) {
-  var target = evt.target;
-  var tagArray = evt.target.value.split(' ');
-  for (var j = 0; j <= tagArray.length - 1; j++) {
-    // if (tagArray[j] === tagArray[0] || tagArray[1] || tagArray[2] || tagArray[3] || tagArray[4] || tagArray[5]) {
-    //   target.setCustomValidity('Хештеги не должны повторяться');
-    // } else
-    // Почему не работает?
-    if (tagArray.length > 5) {
-      target.setCustomValidity('Не больше 5 хештегов');
-    } else if (tagArray[j].length < 2) {
-      target.setCustomValidity('Минимальная длина хештега — 2 символа');
-    } else if (tagArray[j].length > 20) {
-      target.setCustomValidity('Максимальная длина хештега — 20 символов');
-    } else if (tagArray[j].charAt(0) !== '#') {
-      target.setCustomValidity('Хештег должен начинаться с #');
-    } else {
-      target.setCustomValidity('');
+  for (var n = 0; n < arr.length; n++) {
+    var item = arr[n];
+    if (result.includes(item)) {
+      return true;
     }
+
+    if (item.length < 2) {
+      input.setCustomValidity('Минимальная длина хештега — 2 символа');
+      return true;
+    }
+
+    if (item.length > 20) {
+      input.setCustomValidity('Максимальная длина хештега — 20 символов');
+    }
+
+    if (item.charAt(0) !== '#') {
+      input.setCustomValidity('Хештег должен начинаться с #');
+    }
+
+    input.setCustomValidity('');
+    result.push(item);
+  }
+
+  if (result.length > 5) {
+    input.setCustomValidity('Не больше 5 хештегов');
+    return true;
+  }
+
+  return false;
+};
+
+var formHandler = function (evt) {
+  var hashTags = document.querySelector('.text__hashtags');
+  var isNotValidHashtags = validate(hashTags.value.split(/ |, |,/), hashTags);
+
+  if (isNotValidHashtags) {
+    evt.preventDefault();
+    hashTags.reportValidity();
   }
 };
 
-hashtagField.addEventListener('input', hashtagInputHandler);
+uploadField.addEventListener('change', imgUploadHandler);
+
+// var hashtagInputHandler = function (evt) {
+//   var target = evt.target;
+//   var tagArray = evt.target.value.split(' ');
+//   for (var j = 0; j <= tagArray.length - 1; j++) {
+//     // if (tagArray[j] === tagArray[0] || tagArray[1] || tagArray[2] || tagArray[3] || tagArray[4] || tagArray[5]) {
+//     //   target.setCustomValidity('Хештеги не должны повторяться');
+//     // } else
+//     // Почему не работает?
+//     if (tagArray.length > 5) {
+//       target.setCustomValidity('Не больше 5 хештегов');
+//     } else if (tagArray[j].length < 2) {
+//       target.setCustomValidity('Минимальная длина хештега — 2 символа');
+//     } else if (tagArray[j].length > 20) {
+//       target.setCustomValidity('Максимальная длина хештега — 20 символов');
+//     } else if (tagArray[j].charAt(0) !== '#') {
+//       target.setCustomValidity('Хештег должен начинаться с #');
+//     } else {
+//       target.setCustomValidity('');
+//     }
+//   }
+// };
+//
+
+// if (isNotValidateHastags) {
+//    e.preventDefault();
+//    hashTags.reportValidity();
+//  }
+//
+// for (var n = 0; n < arr.length; n++) {
+//    var item = arr[n];
+//    if (result.includes(item)) {
+//      return true;
+// custom validity
+//    }
+//
+// переписать проверку
+//
+//
+// var checkUnique = function (arr, item) {
+// for (var i = 0; i < arr.length; i++) {
+// if (arr[i] === item) {
+// return false;
+// }
+// }
+// return true;
+// };
+//
