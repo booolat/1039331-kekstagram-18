@@ -94,6 +94,7 @@ var imgUploadHandler = function () {
   zoomInButton.addEventListener('click', zoomInClickHandler);
   zoomOutButton.addEventListener('click', zoomOutClickHandler);
   effectsList.addEventListener('click', fxListCLickHandler);
+  form.addEventListener('submit', formHandler);
 };
 
 var killFormListeners = function () {
@@ -102,7 +103,7 @@ var killFormListeners = function () {
   zoomInButton.removeEventListener('click', zoomInClickHandler);
   zoomOutButton.removeEventListener('click', zoomOutClickHandler);
   effectsList.removeEventListener('click', fxListCLickHandler);
-  form.addEventListener('submit', formHandler);
+  form.removeEventListener('submit', formHandler);
 };
 
 var closeButtonClickHandler = function () {
@@ -166,32 +167,31 @@ var validate = function (arr, input) {
 
   for (var n = 0; n < arr.length; n++) {
     var item = arr[n];
-    if (result.includes(item)) {
-      return true;
-    }
+    // console.log(item);
+    // input.setCustomValidity('');
 
-    if (item.length < 2) {
+    if (result.includes(item)) {
+      input.setCustomValidity('Хештеги не должны повторяться');
+      return true;
+    } else if (item.length < 2) {
       input.setCustomValidity('Минимальная длина хештега — 2 символа');
       return true;
-    }
-
-    if (item.length > 20) {
+    } else if (item.length > 20) {
       input.setCustomValidity('Максимальная длина хештега — 20 символов');
-    }
-
-    if (item.charAt(0) !== '#') {
+      return true;
+    } else if (item.charAt(0) !== '#') {
       input.setCustomValidity('Хештег должен начинаться с #');
+      return true;
+    } else if (result.length > 5) {
+      input.setCustomValidity('Не больше 5 хештегов');
+      return true;
+    } else {
+      input.setCustomValidity('');
+      result.push(item);
+      console.log(result);
     }
-
-    input.setCustomValidity('');
-    result.push(item);
   }
-
-  if (result.length > 5) {
-    input.setCustomValidity('Не больше 5 хештегов');
-    return true;
-  }
-
+  // input.setCustomValidity('');
   return false;
 };
 
@@ -202,10 +202,14 @@ var formHandler = function (evt) {
   if (isNotValidHashtags) {
     evt.preventDefault();
     hashTags.reportValidity();
+  } else {
+    hashTags.setCustomValidity('');
   }
 };
 
 uploadField.addEventListener('change', imgUploadHandler);
+
+// debugger;
 
 // var hashtagInputHandler = function (evt) {
 //   var target = evt.target;
