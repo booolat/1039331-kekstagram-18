@@ -167,30 +167,34 @@ var validate = function (arr, input) {
 
   for (var n = 0; n < arr.length; n++) {
     var item = arr[n];
-    // console.log(item);
-    // input.setCustomValidity('');
-
     if (result.includes(item)) {
-      input.setCustomValidity('Хештеги не должны повторяться');
       return true;
-    } else if (item.length < 2) {
+    }
+
+    if (item.length < 2) {
       input.setCustomValidity('Минимальная длина хештега — 2 символа');
       return true;
-    } else if (item.length > 20) {
+    }
+
+    if (item.length > 20) {
       input.setCustomValidity('Максимальная длина хештега — 20 символов');
       return true;
-    } else if (item.charAt(0) !== '#') {
+    }
+
+    if (item.charAt(0) !== '#') {
       input.setCustomValidity('Хештег должен начинаться с #');
       return true;
-    } else if (result.length > 5) {
-      input.setCustomValidity('Не больше 5 хештегов');
-      return true;
-    } else {
-      input.setCustomValidity('');
-      result.push(item);
     }
+
+    input.setCustomValidity('');
+    result.push(item);
   }
-  // input.setCustomValidity('');
+
+  if (result.length > 5) {
+    input.setCustomValidity('Не больше 5 хештегов');
+    return true;
+  }
+
   return false;
 };
 
@@ -201,8 +205,6 @@ var formHandler = function (evt) {
   if (isNotValidHashtags) {
     evt.preventDefault();
     hashTags.reportValidity();
-  } else {
-    hashTags.setCustomValidity('');
   }
 };
 
