@@ -188,7 +188,6 @@ var validate = function (arr, input) {
     } else {
       input.setCustomValidity('');
       result.push(item);
-      console.log(result);
     }
   }
   // input.setCustomValidity('');
