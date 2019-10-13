@@ -14,6 +14,7 @@ var previewImg = uploadPreview.querySelector('img');
 var effectsList = document.querySelector('.effects__list');
 var effectLevel = document.querySelector('.img-upload__effect-level');
 var tagInput = document.querySelector('.text__hashtags');
+var validTags = [];
 // перепроверить всё и выбрать по ID где возможно
 
 var commentTexts = ['Всё отлично!', 'В целом всё неплохо. Но не всё.', 'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
@@ -169,32 +170,45 @@ var fxListCLickHandler = function (evt) {
   effectLevel.classList.remove('hidden');
 };
 
-var tagInputHandler = function (evt) {
-  var target = evt.target;
-  var tags = evt.target.value.split(' ');
-  var validTags = [];
-  for (var j = 0; j < tags.length; j++) {
-    if (
-      tags[j].toLowerCase() === validTags[0]
-      || tags[j].toLowerCase() === validTags[1]
-      || tags[j].toLowerCase() === validTags[2]
-      || tags[j].toLowerCase() === validTags[3]
-      || tags[j].toLowerCase() === validTags[4]
-    ) {
-      target.setCustomValidity('Хештеги не должны повторяться');
-    } else if (tags.length > 5) {
-      target.setCustomValidity('Не больше 5 хештегов');
-    } else if (tags[j].length < 2) {
-      target.setCustomValidity('Хештег должен быть не короче двух символов');
-    } else if (tags[j].length > 20) {
-      target.setCustomValidity('Максимальная длина хештега — 20 символов');
-    } else if (tags[j].charAt(0) !== '#') {
-      target.setCustomValidity('Хештег должен начинаться с #');
-    } else {
-      validTags.push(tags[j].toLowerCase());
-      target.setCustomValidity('');
+var checkUniqueTag = function (tag) {
+  for (var index = 0; index < validTags.length; index++) {
+    if (validTags[index] === tag.toLowerCase()) {
+      return true;
     }
   }
+
+  return false;
+};
+
+var validateTag = function (tag) {
+  switch (true) {
+    case checkUniqueTag(tag):
+      return 'Хештеги не должны повторяться';
+    case validTags.length > 5:
+      return 'Не больше 5 хештегов';
+    case tag.length < 2:
+      return 'Хештег должен быть не короче двух символов';
+    case tag.length > 20:
+      return 'Максимальная длина хештега — 20 символов';
+    case tag.charAt(0) !== '#':
+      return 'Хештег должен начинаться с #';
+    default:
+      validTags.push(tag.toLowerCase());
+      return '';
+  }
+};
+
+var tagInputHandler = function (evt) {
+  var target = evt.target;
+  var tags = evt.target.value.split(/,| |, /);
+  for (var j = 0; j < tags.length; j++) {
+    var validity = validateTag(tags[j]);
+    target.setCustomValidity(validity);
+    if (validity.length) {
+      target.reportValidity();
+    }
+  }
+  validTags = [];
 };
 
 uploadField.addEventListener('change', uploadFieldHandler);
