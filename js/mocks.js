@@ -14,12 +14,12 @@
 
   var getCommentsArray = function () {
     var comment = {
-      avatar: 'img/avatar-' + window.getRandomNumber(1, 6) + '.svg',
-      message: commentTexts[window.getRandomNumber(0, commentAuthors.length)],
-      name: commentAuthors[window.getRandomNumber(0, commentAuthors.length)]
+      avatar: 'img/avatar-' + window.utils.getRandomNumber(1, 6) + '.svg',
+      message: commentTexts[window.utils.getRandomNumber(0, commentAuthors.length)],
+      name: commentAuthors[window.utils.getRandomNumber(0, commentAuthors.length)]
     };
     var commentsArray = [];
-    var maxComments = window.getRandomNumber(0, 10);
+    var maxComments = window.utils.getRandomNumber(0, 10);
     for (var i = 0; i < maxComments; i++) {
       commentsArray.push(comment);
     }
@@ -28,7 +28,7 @@
 
   var createMock = function (selectedPhotos) {
     function selectPhoto() {
-      var current = window.getRandomNumber(1, MOCK_AMOUNT);
+      var current = window.utils.getRandomNumber(1, MOCK_AMOUNT);
       if (selectedPhotos.includes(current)) {
         // переписать с использованием цикла
         return selectPhoto();
@@ -39,7 +39,7 @@
     return {
       url: 'photos/' + selectPhoto() + '.jpg',
       description: 'Описание фотографии',
-      likes: window.getRandomNumber(15, 200),
+      likes: window.utils.getRandomNumber(15, 200),
       comments: getCommentsArray()
     };
   };
