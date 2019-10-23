@@ -1,6 +1,9 @@
 'use strict';
 
+// Утилиты
+
 (function () {
+  // ограничить область поиска формой там, где это возможно
   var uploadField = document.querySelector('#upload-file');
   var editingForm = document.querySelector('.img-upload__overlay');
   var editingCloseButton = editingForm.querySelector('#upload-cancel');
@@ -13,6 +16,7 @@
   var effectLevel = document.querySelector('.img-upload__effect-level');
   var tagInput = document.querySelector('.text__hashtags');
   var validTags = [];
+  var effectLevelPin = document.querySelector('.effect-level__pin');
 
   var ESC_KEY = 27;
   var ZOOM_STEP = 25;
@@ -104,6 +108,33 @@
     previewImg.classList = 'effects__preview--' + effectName;
     effectLevel.classList.remove('hidden');
   };
+
+  // Изменение уровня эффекта
+
+  effectLevelPin.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX
+    };
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX
+      };
+
+      startCoords = {
+        x: moveEvt.clientX
+      };
+
+      effectLevelPin.style.left = (effectLevelPin.offsetLeft - shift.x) + 'px';
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 
   // Валидация хештегов
 
