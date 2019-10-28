@@ -17,11 +17,13 @@
   var tagInput = document.querySelector('.text__hashtags');
   var validTags = [];
   var effectLevelPin = document.querySelector('.effect-level__pin');
+  var effectLevelInput = document.querySelector('.effect-level__value');
 
   var ESC_KEY = 27;
   var ZOOM_STEP = 25;
   var MAX_ZOOM = 100;
   var MIN_ZOOM = 25;
+  var PIN_DEFAULT_POSITION = 91;
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -109,6 +111,7 @@
     effectLevel.classList.remove('hidden');
   };
 
+
   // Изменение уровня эффекта
 
   effectLevelPin.addEventListener('mousedown', function (evt) {
@@ -129,12 +132,88 @@
         x: moveEvt.clientX
       };
 
-      effectLevelPin.style.left = (effectLevelPin.offsetLeft - shift.x) + 'px';
+      var effectLevelPinShift = effectLevelPin.offsetLeft - shift.x;
+
+      if (effectLevelPinShift < 0) {
+        effectLevelPinShift = 0;
+      } else if (effectLevelPinShift > 450) {
+        // что за волшебное число 450?
+        effectLevelPinShift = 450;
+      }
+
+      effectLevelInput.value = effectLevelPinShift;
+      // В ТЗ указано, что в поле должны записываться координаты середины пина
+      // var effectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
+      // нужны тут скобки?
+
+      console.log(effectLevelPinShift);
+
+      // вот это всё нужно убрать в switch
+      switch (previewImg.classList.value) {
+        case 'effects__preview--chrome':
+          previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+          break;
+        case 'effects__preview--sepia':
+          previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+          break;
+        case 'effects__preview--marvin':
+          previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 100 + '%)';
+          break;
+        case 'effects__preview--phobos':
+          var phobosEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
+          // Проверить стартовое значение
+
+          if (phobosEffectDepth > 3) {
+            phobosEffectDepth = 3;
+          }
+          previewImg.style.filter = 'blur(' + phobosEffectDepth + 'px)';
+          break;
+        case 'effects__preview--heat':
+          var heatEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION);
+          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией, уточнить
+
+          if (heatEffectDepth > 3) {
+            heatEffectDepth = 3;
+          } else if (heatEffectDepth < 1) {
+            heatEffectDepth = 1;
+          }
+          previewImg.style.filter = 'brightness(' + heatEffectDepth + ')';
+          break;
+      }
+
+      // if (previewImg.classList.value === 'effects__preview--chrome') {
+      //   previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+      //
+      // } else if (previewImg.classList.value === 'effects__preview--sepia') {
+      //   previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+      //
+      // } else if (previewImg.classList.value === 'effects__preview--marvin') {
+      //   previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 100 + '%)';
+      //
+      // } else if (previewImg.classList.value === 'effects__preview--phobos') {
+      //   previewImg.style.filter = 'blur(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3 + 'px)';
+      //   // не понял, как тут задать диапазон до 3 px; не через if же
+      // } else if (previewImg.classList.value === 'effects__preview--heat') {
+      //   previewImg.style.filter = 'brightness(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3 + ')';
+      //   // то же самое, нужен диапазон от 1 до 3;
+      // }
+
+      console.log(previewImg.style.filter);
+
+      effectLevelPin.style.left = effectLevelPinShift + 'px';
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
     };
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
+
 
   // Валидация хештегов
 
