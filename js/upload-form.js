@@ -23,7 +23,10 @@
   var ZOOM_STEP = 25;
   var MAX_ZOOM = 100;
   var MIN_ZOOM = 25;
+  var EFFECT_LEVEL_DEFAULT = 20;
   var PIN_DEFAULT_POSITION = 91;
+  var PIN_MAX_POSITION = 450;
+  var PIN_MIN_POSITION = 0;
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -108,9 +111,32 @@
     }
 
     previewImg.classList = 'effects__preview--' + effectName;
+    effectLevelPin.style.left = PIN_DEFAULT_POSITION + 'px';
+
+    switch (previewImg.classList.value) {
+      case 'effects__preview--chrome':
+        previewImg.style.filter = 'grayscale(1)';
+        break;
+      case 'effects__preview--sepia':
+        previewImg.style.filter = 'sepia(1)';
+        break;
+      case 'effects__preview--marvin':
+        previewImg.style.filter = 'invert(100%)';
+        break;
+      case 'effects__preview--phobos':
+        previewImg.style.filter = 'blur(3px)';
+        break;
+      case 'effects__preview--heat':
+        previewImg.style.filter = 'brightness(3)';
+        break;
+      case 'effects__preview--':
+        previewImg.style.filter = '';
+        break;
+    }
+
+    effectLevelInput.value = EFFECT_LEVEL_DEFAULT;
     effectLevel.classList.remove('hidden');
   };
-
 
   // Изменение уровня эффекта
 
@@ -134,21 +160,15 @@
 
       var effectLevelPinShift = effectLevelPin.offsetLeft - shift.x;
 
-      if (effectLevelPinShift < 0) {
-        effectLevelPinShift = 0;
-      } else if (effectLevelPinShift > 450) {
-        // что за волшебное число 450?
-        effectLevelPinShift = 450;
+      if (effectLevelPinShift < PIN_MIN_POSITION) {
+        effectLevelPinShift = PIN_MIN_POSITION;
+      } else if (effectLevelPinShift > PIN_MAX_POSITION) {
+        effectLevelPinShift = PIN_MAX_POSITION;
       }
 
       effectLevelInput.value = effectLevelPinShift;
       // В ТЗ указано, что в поле должны записываться координаты середины пина
-      // var effectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
-      // нужны тут скобки?
 
-      console.log(effectLevelPinShift);
-
-      // вот это всё нужно убрать в switch
       switch (previewImg.classList.value) {
         case 'effects__preview--chrome':
           previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
@@ -161,7 +181,6 @@
           break;
         case 'effects__preview--phobos':
           var phobosEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
-          // Проверить стартовое значение
 
           if (phobosEffectDepth > 3) {
             phobosEffectDepth = 3;
@@ -169,8 +188,8 @@
           previewImg.style.filter = 'blur(' + phobosEffectDepth + 'px)';
           break;
         case 'effects__preview--heat':
-          var heatEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION);
-          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией, уточнить
+          var heatEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
+          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией
 
           if (heatEffectDepth > 3) {
             heatEffectDepth = 3;
@@ -180,25 +199,6 @@
           previewImg.style.filter = 'brightness(' + heatEffectDepth + ')';
           break;
       }
-
-      // if (previewImg.classList.value === 'effects__preview--chrome') {
-      //   previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
-      //
-      // } else if (previewImg.classList.value === 'effects__preview--sepia') {
-      //   previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
-      //
-      // } else if (previewImg.classList.value === 'effects__preview--marvin') {
-      //   previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 100 + '%)';
-      //
-      // } else if (previewImg.classList.value === 'effects__preview--phobos') {
-      //   previewImg.style.filter = 'blur(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3 + 'px)';
-      //   // не понял, как тут задать диапазон до 3 px; не через if же
-      // } else if (previewImg.classList.value === 'effects__preview--heat') {
-      //   previewImg.style.filter = 'brightness(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3 + ')';
-      //   // то же самое, нужен диапазон от 1 до 3;
-      // }
-
-      console.log(previewImg.style.filter);
 
       effectLevelPin.style.left = effectLevelPinShift + 'px';
     };
@@ -213,7 +213,6 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
-
 
   // Валидация хештегов
 
