@@ -1,6 +1,9 @@
 'use strict';
 
+// Утилиты
+
 (function () {
+  // ограничить область поиска формой там, где это возможно
   var uploadField = document.querySelector('#upload-file');
   var editingForm = document.querySelector('.img-upload__overlay');
   var editingCloseButton = editingForm.querySelector('#upload-cancel');
@@ -13,11 +16,17 @@
   var effectLevel = document.querySelector('.img-upload__effect-level');
   var tagInput = document.querySelector('.text__hashtags');
   var validTags = [];
+  var effectLevelPin = document.querySelector('.effect-level__pin');
+  var effectLevelInput = document.querySelector('.effect-level__value');
+  var effectLevelHighlight = document.querySelector('.effect-level__depth');
 
   var ESC_KEY = 27;
   var ZOOM_STEP = 25;
   var MAX_ZOOM = 100;
   var MIN_ZOOM = 25;
+  var PIN_MAX_POSITION = 453;
+  var PIN_MIN_POSITION = 0;
+  var PIN_WIDTH = 18;
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -102,8 +111,112 @@
     }
 
     previewImg.classList = 'effects__preview--' + effectName;
+    effectLevelPin.style.left = PIN_MAX_POSITION + 'px';
+    effectLevelHighlight.style.width = '100%';
+
+    switch (previewImg.classList.value) {
+      case 'effects__preview--chrome':
+        previewImg.style.filter = 'grayscale(1)';
+        break;
+      case 'effects__preview--sepia':
+        previewImg.style.filter = 'sepia(1)';
+        break;
+      case 'effects__preview--marvin':
+        previewImg.style.filter = 'invert(100%)';
+        break;
+      case 'effects__preview--phobos':
+        previewImg.style.filter = 'blur(3px)';
+        break;
+      case 'effects__preview--heat':
+        previewImg.style.filter = 'brightness(3)';
+        break;
+      case 'effects__preview--':
+        previewImg.style.filter = '';
+        break;
+    }
+
+    effectLevelInput.value = PIN_MAX_POSITION;
     effectLevel.classList.remove('hidden');
   };
+
+  // Изменение уровня эффекта
+
+  effectLevelPin.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+
+    var startCoords = {
+      x: evt.clientX
+    };
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var shift = {
+        x: startCoords.x - moveEvt.clientX
+      };
+
+      startCoords = {
+        x: moveEvt.clientX
+      };
+
+      var effectLevelPinShift = effectLevelPin.offsetLeft - shift.x;
+
+      if (effectLevelPinShift < PIN_MIN_POSITION) {
+        effectLevelPinShift = PIN_MIN_POSITION;
+      } else if (effectLevelPinShift > PIN_MAX_POSITION) {
+        effectLevelPinShift = PIN_MAX_POSITION;
+      }
+
+      effectLevelHighlight.style.width = (effectLevelPinShift / PIN_MAX_POSITION) * 100 + '%';
+
+      effectLevelInput.value = effectLevelPinShift - PIN_WIDTH / 2;
+      // В ТЗ указано, что в поле должны записываться координаты середины пина
+      // Всё понятно, но в крайнем левом положении в поле получается -9. Это нормально или нужно приводить к нулю?
+
+      switch (previewImg.classList.value) {
+        case 'effects__preview--chrome':
+          previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_MAX_POSITION + ')';
+          break;
+        case 'effects__preview--sepia':
+          previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_MAX_POSITION + ')';
+          break;
+        case 'effects__preview--marvin':
+          previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_MAX_POSITION) * 100 + '%)';
+          break;
+        case 'effects__preview--phobos':
+          var phobosEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 3;
+
+          if (phobosEffectDepth > 3) {
+            phobosEffectDepth = 3;
+          }
+          previewImg.style.filter = 'blur(' + phobosEffectDepth + 'px)';
+          break;
+        case 'effects__preview--heat':
+          var heatEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 4;
+          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией, мёртвые зоны по краям слайдера
+
+          if (heatEffectDepth > 3) {
+            heatEffectDepth = 3;
+          } else if (heatEffectDepth < 1) {
+            heatEffectDepth = 1;
+          }
+          previewImg.style.filter = 'brightness(' + heatEffectDepth + ')';
+          break;
+      }
+
+      effectLevelPin.style.left = effectLevelPinShift + 'px';
+    };
+
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
 
   // Валидация хештегов
 
