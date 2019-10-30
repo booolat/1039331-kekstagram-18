@@ -18,15 +18,15 @@
   var validTags = [];
   var effectLevelPin = document.querySelector('.effect-level__pin');
   var effectLevelInput = document.querySelector('.effect-level__value');
+  var effectLevelHighlight = document.querySelector('.effect-level__depth');
 
   var ESC_KEY = 27;
   var ZOOM_STEP = 25;
   var MAX_ZOOM = 100;
   var MIN_ZOOM = 25;
-  var EFFECT_LEVEL_DEFAULT = 20;
-  var PIN_DEFAULT_POSITION = 91;
-  var PIN_MAX_POSITION = 450;
+  var PIN_MAX_POSITION = 453;
   var PIN_MIN_POSITION = 0;
+  var PIN_WIDTH = 18;
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -111,7 +111,8 @@
     }
 
     previewImg.classList = 'effects__preview--' + effectName;
-    effectLevelPin.style.left = PIN_DEFAULT_POSITION + 'px';
+    effectLevelPin.style.left = PIN_MAX_POSITION + 'px';
+    effectLevelHighlight.style.width = '100%';
 
     switch (previewImg.classList.value) {
       case 'effects__preview--chrome':
@@ -134,7 +135,7 @@
         break;
     }
 
-    effectLevelInput.value = EFFECT_LEVEL_DEFAULT;
+    effectLevelInput.value = PIN_MAX_POSITION;
     effectLevel.classList.remove('hidden');
   };
 
@@ -166,21 +167,24 @@
         effectLevelPinShift = PIN_MAX_POSITION;
       }
 
-      effectLevelInput.value = effectLevelPinShift;
+      effectLevelHighlight.style.width = (effectLevelPinShift / PIN_MAX_POSITION) * 100 + '%';
+
+      effectLevelInput.value = effectLevelPinShift - PIN_WIDTH / 2;
       // В ТЗ указано, что в поле должны записываться координаты середины пина
+      // Всё понятно, но в крайнем левом положении в поле получается -9. Это нормально или нужно приводить к нулю?
 
       switch (previewImg.classList.value) {
         case 'effects__preview--chrome':
-          previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+          previewImg.style.filter = 'grayscale(' + effectLevelPinShift / PIN_MAX_POSITION + ')';
           break;
         case 'effects__preview--sepia':
-          previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_DEFAULT_POSITION + ')';
+          previewImg.style.filter = 'sepia(' + effectLevelPinShift / PIN_MAX_POSITION + ')';
           break;
         case 'effects__preview--marvin':
-          previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_DEFAULT_POSITION) * 100 + '%)';
+          previewImg.style.filter = 'invert(' + (effectLevelPinShift / PIN_MAX_POSITION) * 100 + '%)';
           break;
         case 'effects__preview--phobos':
-          var phobosEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
+          var phobosEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 3;
 
           if (phobosEffectDepth > 3) {
             phobosEffectDepth = 3;
@@ -188,8 +192,8 @@
           previewImg.style.filter = 'blur(' + phobosEffectDepth + 'px)';
           break;
         case 'effects__preview--heat':
-          var heatEffectDepth = (effectLevelPinShift / PIN_DEFAULT_POSITION) * 3;
-          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией
+          var heatEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 4;
+          // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией, мёртвые зоны по краям слайдера
 
           if (heatEffectDepth > 3) {
             heatEffectDepth = 3;
