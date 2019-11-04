@@ -192,7 +192,7 @@
           previewImg.style.filter = 'blur(' + phobosEffectDepth + 'px)';
           break;
         case 'effects__preview--heat':
-          var heatEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 4;
+          var heatEffectDepth = (effectLevelPinShift / PIN_MAX_POSITION) * 2 + 1;
           // Здесь диапазон значений от 1 до 3, но что-то не то с пропорцией, мёртвые зоны по краям слайдера
 
           if (heatEffectDepth > 3) {
