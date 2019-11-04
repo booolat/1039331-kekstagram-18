@@ -5,12 +5,12 @@
   var photoContainer = document.querySelector('.pictures');
   var mockTemplate = document.querySelector('#picture').content;
   var fragment = document.createDocumentFragment();
-  var mockError = document.querySelector('#error').content;
+  var error = document.querySelector('#error').content;
 
-  var successHandler = function (webmock) {
+  var successHandler = function (data) {
 
-    for (var i = 0; i < webmock.length; i++) {
-      var currentMock = webmock[i];
+    for (var i = 0; i < data.length; i++) {
+      var currentMock = data[i];
       var photoMock = mockTemplate.cloneNode(true);
       photoMock.querySelector('.picture__img').setAttribute('src', currentMock.url);
       photoMock.querySelector('.picture__likes').textContent = currentMock.likes;
@@ -22,8 +22,7 @@
   };
 
   var errorHandler = function () {
-    // console.log(errorMessage);
-    photoContainer.appendChild(mockError);
+    photoContainer.appendChild(error);
   };
 
   window.load(successHandler, errorHandler);
