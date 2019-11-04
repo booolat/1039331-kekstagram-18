@@ -21,7 +21,7 @@
     photoContainer.appendChild(fragment);
   };
 
-  var errorHandler = function (errorMessage) {
+  var errorHandler = function () {
     // console.log(errorMessage);
     photoContainer.appendChild(mockError);
   };
