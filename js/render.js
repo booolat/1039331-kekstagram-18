@@ -2,10 +2,10 @@
 
 (function () {
 
-  var photoContainer = document.querySelector('.pictures');
+  window.photoContainer = document.querySelector('.pictures');
   var mockTemplate = document.querySelector('#picture').content;
   var fragment = document.createDocumentFragment();
-  var error = document.querySelector('#error').content;
+  window.error = document.querySelector('#error').content;
 
   var successHandler = function (data) {
 
@@ -18,11 +18,11 @@
       fragment.appendChild(photoMock);
     }
 
-    photoContainer.appendChild(fragment);
+    window.photoContainer.appendChild(fragment);
   };
 
   var errorHandler = function () {
-    photoContainer.appendChild(error);
+    window.photoContainer.appendChild(window.error);
   };
 
   window.load(successHandler, errorHandler);
