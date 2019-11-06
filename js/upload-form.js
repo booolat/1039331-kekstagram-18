@@ -17,7 +17,7 @@
   var form = document.querySelector('#upload-select-image');
   var checkboxOriginal = document.querySelector('#effect-none');
   var uploadSuccessMessage = document.querySelector('#success').content;
-  var successButton = uploadSuccessMessage.querySelector('.success__button');
+  // можно использовать такую запись вместо cloneNode?
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -136,45 +136,83 @@
 
   // Отправка формы
 
-  var successButtonClickHandler = function () {
-    var innerSuccess = window.photoContainer.querySelector('.success');
-    window.photoContainer.removeChild(innerSuccess);
-    successButton.removeEventListener('click', successButtonClickHandler);
-    document.removeEventListener('keydown', successMessageEscHandler);
-  };
-
-  var errorButtonsHandler = function () {
-    var errorButtons = document.querySelectorAll('.error__button');
-    var innerError = window.photoContainer.querySelector('.error');
-    for (var i = 0; i < errorButtons.length; i++) {
-      errorButtons[i].addEventListener('click', function () {
-        window.photoContainer.removeChild(innerError);
-      });
-    }
-    document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === ESC_KEY) {
-        window.photoContainer.removeChild(innerError);
-      }
-    });
-  };
-  // не понимаю, как тут удалить листенеры
-
-  var successMessageEscHandler = function (evt) {
-    if (evt.keyCode === ESC_KEY) {
-      successButtonClickHandler();
-    }
-  };
-
   var uploadSuccessHandler = function () {
-    window.photoContainer.appendChild(uploadSuccessMessage);
+    var successBlock = uploadSuccessMessage.cloneNode(true);
+    window.render.main.appendChild(successBlock);
+
+    var innerSuccess = window.render.main.querySelector('.success');
+    var successButton = window.render.main.querySelector('.success__button');
+
+    var killSuccessListeners = function () {
+      successButton.removeEventListener('click', successButtonClickHandler);
+      document.removeEventListener('keydown', successMessageEscHandler);
+      document.removeEventListener('click', successOutsideClickHandler);
+    };
+
+    var successButtonClickHandler = function () {
+      window.render.main.removeChild(innerSuccess);
+      killSuccessListeners();
+    };
+
+    var successMessageEscHandler = function (evt) {
+      if (evt.keyCode === ESC_KEY) {
+        window.render.main.removeChild(innerSuccess);
+        killSuccessListeners();
+      }
+    };
+
+    var successOutsideClickHandler = function (evt) {
+      if (evt.target === innerSuccess) {
+        // тут же должно быть !==, почему это работает?
+        window.render.main.removeChild(innerSuccess);
+        killSuccessListeners();
+      }
+    };
+
     successButton.addEventListener('click', successButtonClickHandler);
     document.addEventListener('keydown', successMessageEscHandler);
+    document.addEventListener('click', successOutsideClickHandler);
+
     closeButtonClickHandler();
   };
 
   var uploadErrorHandler = function () {
-    window.photoContainer.appendChild(window.error);
-    errorButtonsHandler();
+    window.render.main.appendChild(window.render.error);
+
+    var innerError = window.render.main.querySelector('.error');
+    var errorButtons = document.querySelectorAll('.error__button');
+
+    var killErrorListeners = function () {
+      for (var i = 0; i < errorButtons.length; i++) {
+        errorButtons[i].removeEventListener('click', errorButtonsClickHandler);
+      }
+      document.removeEventListener('keydown', errorMessageEscHandler);
+      document.removeEventListener('click', errorOutsideClickHandler);
+    };
+
+    var errorButtonsClickHandler = function () {
+      window.render.main.removeChild(innerError);
+      killErrorListeners();
+    };
+
+    var errorMessageEscHandler = function (evt) {
+      if (evt.keyCode === ESC_KEY) {
+        window.render.main.removeChild(innerError);
+      }
+    };
+
+    var errorOutsideClickHandler = function (evt) {
+      if (evt.target === innerError) {
+        window.render.main.removeChild(innerError);
+      }
+    };
+
+    for (var i = 0; i < errorButtons.length; i++) {
+      errorButtons[i].addEventListener('click', errorButtonsClickHandler);
+    }
+    document.addEventListener('keydown', errorMessageEscHandler);
+    document.addEventListener('click', errorOutsideClickHandler);
+
     closeButtonClickHandler();
   };
 
