@@ -26,7 +26,8 @@
   };
 
   var errorHandler = function () {
-    window.render.main.appendChild(window.render.error);
+    var loadError = window.render.error.cloneNode(true);
+    window.render.main.appendChild(loadError);
   };
 
   window.load(successHandler, errorHandler);

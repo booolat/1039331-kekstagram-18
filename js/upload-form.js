@@ -17,7 +17,6 @@
   var form = document.querySelector('#upload-select-image');
   var checkboxOriginal = document.querySelector('#effect-none');
   var uploadSuccessMessage = document.querySelector('#success').content;
-  // можно использовать такую запись вместо cloneNode?
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -177,7 +176,8 @@
   };
 
   var uploadErrorHandler = function () {
-    window.render.main.appendChild(window.render.error);
+    var errorBlock = window.render.error.cloneNode(true);
+    window.render.main.appendChild(errorBlock);
 
     var innerError = window.render.main.querySelector('.error');
     var errorButtons = document.querySelectorAll('.error__button');
@@ -198,12 +198,14 @@
     var errorMessageEscHandler = function (evt) {
       if (evt.keyCode === ESC_KEY) {
         window.render.main.removeChild(innerError);
+        killErrorListeners();
       }
     };
 
     var errorOutsideClickHandler = function (evt) {
       if (evt.target === innerError) {
         window.render.main.removeChild(innerError);
+        killErrorListeners();
       }
     };
 
