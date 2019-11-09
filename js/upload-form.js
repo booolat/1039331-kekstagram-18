@@ -26,7 +26,7 @@
       zoomButtons[i].addEventListener('click', window.preview.zoomClickHandler);
     }
     effectsList.addEventListener('click', window.preview.fxListCLickHandler);
-    window.effectLevelPin.addEventListener('mousedown', window.preview.pinDragHandler);
+    window.preview.effectLevelPin.addEventListener('mousedown', window.preview.pinDragHandler);
     tagInput.addEventListener('input', tagInputHandler);
     commentInput.addEventListener('input', commentInputHandler);
     form.addEventListener('submit', submitHandler);
@@ -39,7 +39,7 @@
       zoomButtons[i].removeEventListener('click', window.preview.zoomClickHandler);
     }
     effectsList.removeEventListener('click', window.preview.fxListCLickHandler);
-    window.effectLevelPin.removeEventListener('mousedown', window.preview.pinDragHandler);
+    window.preview.effectLevelPin.removeEventListener('mousedown', window.preview.pinDragHandler);
     tagInput.removeEventListener('input', tagInputHandler);
     commentInput.removeEventListener('input', commentInputHandler);
     form.removeEventListener('submit', submitHandler);
@@ -48,12 +48,12 @@
   var closeButtonClickHandler = function () {
     tagInput.value = '';
     commentInput.value = '';
-    window.scaleInput.value = '100%';
-    window.previewImg.style.transform = 'scale(1)';
-    window.previewImg.classList = '';
-    window.previewImg.style.filter = '';
-    window.effectLevel.classList.add('hidden');
-    window.effectLevelInput.value = '0';
+    window.preview.scaleInput.value = '100%';
+    window.preview.previewImg.style.transform = 'scale(1)';
+    window.preview.previewImg.classList = '';
+    window.preview.previewImg.style.filter = '';
+    window.preview.effectLevel.classList.add('hidden');
+    window.preview.effectLevelInput.value = '0';
     checkboxOriginal.checked = true;
     editingForm.classList.add('hidden');
     uploadField.value = '';
@@ -162,7 +162,6 @@
 
     var successOutsideClickHandler = function (evt) {
       if (evt.target === innerSuccess) {
-        // тут же должно быть !==, почему это работает?
         window.render.main.removeChild(innerSuccess);
         killSuccessListeners();
       }
@@ -219,8 +218,8 @@
   };
 
   var submitHandler = function (evt) {
-    window.upload(new FormData(form), uploadSuccessHandler, uploadErrorHandler);
     evt.preventDefault();
+    window.backend.upload(new FormData(form), uploadSuccessHandler, uploadErrorHandler);
   };
 
   // Листенер формы
