@@ -20,15 +20,15 @@
   var successHandler = function (data) {
 
     var cleanMocks = function () {
-      var oldMocks = photoContainer.querySelectorAll('a.picture');
-      oldMocks.forEach(function (oldMock) {
-        photoContainer.removeChild(oldMock);
+      var oldPictures = photoContainer.querySelectorAll('a.picture');
+      oldPictures.forEach(function (oldPicture) {
+        photoContainer.removeChild(oldPicture);
       });
     };
 
-    var renderMocks = function (mockPack) {
-      for (var i = 0; i < mockPack.length; i++) {
-        var currentMock = mockPack[i];
+    var renderMocks = function (picsPack) {
+      for (var i = 0; i < picsPack.length; i++) {
+        var currentMock = picsPack[i];
         var photoMock = mockTemplate.cloneNode(true);
         photoMock.querySelector('.picture__img').setAttribute('src', currentMock.url);
         photoMock.querySelector('.picture__likes').textContent = currentMock.likes;
@@ -48,51 +48,52 @@
       return randomNumber;
     };
 
-    var renderWithDelay = function (mockArray) {
+    var renderWithDelay = function (picsArray) {
       if (lastTimeout) {
         window.clearTimeout(lastTimeout);
       }
       window.setTimeout(function () {
         cleanMocks();
-        renderMocks(mockArray);
+        renderMocks(picsArray);
       }, 500);
     };
 
-    var randomButtonClickHandler = function () {
-      var randomMocks = [];
-
-      var getRandomMocks = function () {
-        var randomMock = data[getRandomNumber(0, data.length - 1)];
-        if (randomMocks.includes(randomMock)) {
-          getRandomMocks();
-        } else if (randomMocks.length > RANDOM_MOCKS_AMOUNT - 1) {
-          return randomMocks;
-        } else {
-          randomMocks.push(randomMock);
-          getRandomMocks();
-        }
-        return randomMocks;
-      };
-
-      getRandomMocks();
-
+    var changeActiveButton = function (evt) {
       popularButton.classList.remove('img-filters__button--active');
-      discussedButton.classList.remove('img-filters__button--active');
-      randomButton.classList.add('img-filters__button--active');
-
-      renderWithDelay(randomMocks);
-    };
-
-    var popularButtonClickHandler = function () {
       randomButton.classList.remove('img-filters__button--active');
       discussedButton.classList.remove('img-filters__button--active');
-      popularButton.classList.add('img-filters__button--active');
+      evt.target.classList.add('img-filters__button--active');
+    };
 
+    var randomButtonClickHandler = function (evt) {
+      var randomPictures = [];
+
+      var getRandomPictures = function () {
+        var randomPicture = data[getRandomNumber(0, data.length - 1)];
+        if (randomPictures.includes(randomPicture)) {
+          getRandomPictures();
+        } else if (randomPictures.length > RANDOM_MOCKS_AMOUNT - 1) {
+          return randomPictures;
+        } else {
+          randomPictures.push(randomPicture);
+          getRandomPictures();
+        }
+        return randomPictures;
+      };
+
+      getRandomPictures();
+
+      changeActiveButton(evt);
+      renderWithDelay(randomPictures);
+    };
+
+    var popularButtonClickHandler = function (evt) {
+      changeActiveButton(evt);
       renderWithDelay(data);
     };
 
-    var discussedButtonClickHandler = function () {
-      var mocksByComments = data.slice().sort(function (first, second) {
+    var discussedButtonClickHandler = function (evt) {
+      var picsByComments = data.slice().sort(function (first, second) {
         if (first.comments.length > second.comments.length) {
           return -1;
         } else if (first.comments.length < second.comments.length) {
@@ -102,11 +103,8 @@
         }
       });
 
-      popularButton.classList.remove('img-filters__button--active');
-      randomButton.classList.remove('img-filters__button--active');
-      discussedButton.classList.add('img-filters__button--active');
-
-      renderWithDelay(mocksByComments);
+      changeActiveButton(evt);
+      renderWithDelay(picsByComments);
     };
 
     popularButton.addEventListener('click', popularButtonClickHandler);
