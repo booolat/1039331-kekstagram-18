@@ -1,7 +1,5 @@
 'use strict';
 
-// Утилиты
-
 (function () {
 
   var ESC_KEY = 27;
@@ -17,6 +15,7 @@
   var form = document.querySelector('#upload-select-image');
   var checkboxOriginal = document.querySelector('#effect-none');
   var uploadSuccessMessage = document.querySelector('#success').content;
+  var submitButton = form.querySelector('#upload-submit');
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -27,9 +26,11 @@
     }
     effectsList.addEventListener('click', window.preview.fxListCLickHandler);
     window.preview.effectLevelPin.addEventListener('mousedown', window.preview.pinDragHandler);
+    window.preview.effectLevelPin.addEventListener('keydown', window.preview.pinKeyHandler);
     tagInput.addEventListener('input', tagInputHandler);
     commentInput.addEventListener('input', commentInputHandler);
     form.addEventListener('submit', submitHandler);
+    submitButton.addEventListener('click', submitButtonClickHandler);
   };
 
   var killFormListeners = function () {
@@ -40,9 +41,11 @@
     }
     effectsList.removeEventListener('click', window.preview.fxListCLickHandler);
     window.preview.effectLevelPin.removeEventListener('mousedown', window.preview.pinDragHandler);
+    window.preview.effectLevelPin.addEventListener('keydown', window.preview.pinKeyHandler);
     tagInput.removeEventListener('input', tagInputHandler);
     commentInput.removeEventListener('input', commentInputHandler);
     form.removeEventListener('submit', submitHandler);
+    submitButton.removeEventListener('click', submitButtonClickHandler);
   };
 
   var closeButtonClickHandler = function () {
@@ -74,8 +77,6 @@
       closeButtonClickHandler();
     }
   };
-
-  // Валидация хештегов
 
   var checkUniqueTag = function (tag) {
     for (var index = 0; index < validTags.length; index++) {
@@ -119,10 +120,7 @@
       }
     }
     validTags = [];
-    // не лишняя ли это переменная? такая уже объявлена в начале
   };
-
-  // Валидация комментариев
 
   var commentInputHandler = function (evt) {
     var target = evt.target;
@@ -132,8 +130,6 @@
       target.setCustomValidity('');
     }
   };
-
-  // Отправка формы
 
   var uploadSuccessHandler = function () {
     var successBlock = uploadSuccessMessage.cloneNode(true);
@@ -174,7 +170,7 @@
     closeButtonClickHandler();
   };
 
-  var uploadErrorHandler = function () {
+  var uploadErrorHandler = function (errorlog) {
     var errorBlock = window.render.error.cloneNode(true);
     window.render.main.appendChild(errorBlock);
 
@@ -215,14 +211,24 @@
     document.addEventListener('click', errorOutsideClickHandler);
 
     closeButtonClickHandler();
+
+    throw new Error(errorlog);
+  };
+
+  var submitButtonClickHandler = function () {
+    var invalidInputs = form.querySelectorAll(':invalid');
+
+    invalidInputs.forEach(function (input) {
+      if (input.tagName !== 'FIELDSET') {
+        input.style.outline = '5px dotted red';
+      }
+    });
   };
 
   var submitHandler = function (evt) {
     evt.preventDefault();
     window.backend.upload(new FormData(form), uploadSuccessHandler, uploadErrorHandler);
   };
-
-  // Листенер формы
 
   uploadField.addEventListener('change', uploadFieldHandler);
 })();
