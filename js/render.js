@@ -15,6 +15,7 @@
   var randomButton = document.querySelector('#filter-random');
   var discussedButton = document.querySelector('#filter-discussed');
   var bigPicture = document.querySelector('.big-picture');
+  var commentsLoadButton = bigPicture.querySelector('.comments-loader');
 
   window.render = {
     main: document.querySelector('main'),
@@ -111,6 +112,36 @@
       renderWithDelay(picsByComments);
     };
 
+    var appendComments = function (i, list, template) {
+
+      for (var j = 0; j < data[i].comments.length; j++) {
+        var comment = template.cloneNode(true);
+        var commentIndex = bigPicture.querySelectorAll('.social__comment').length;
+
+        comment.querySelector('img').setAttribute('src', data[i].comments[commentIndex].avatar);
+        comment.querySelector('img').setAttribute('alt', data[i].comments[commentIndex].name);
+        comment.querySelector('.social__text').textContent = data[i].comments[commentIndex].message;
+        bigPicture.querySelector('.social__comment-count').textContent = commentIndex + 1 + ' из ' + data[i].comments.length + ' комментариев';
+        list.appendChild(comment);
+
+        var commentsCount = bigPicture.querySelectorAll('.social__comment').length;
+
+        if (j === (COMMENTS_PORTION - 1)) {
+          break;
+        } else if (commentsCount === data[i].comments.length) {
+          commentsLoadButton.classList.add('hidden');
+          break;
+        }
+      }
+    };
+
+    var bigPictureEnterHandler = function (e) {
+      if ((e.keyCode === ENTER_KEY) && (e.target.tagName === 'A')) {
+        var image = e.target.querySelector('img');
+        photoClickHandler(e, image);
+      }
+    };
+
     var photoClickHandler = function (evt, target) {
       if (evt.type === 'click') {
         target = evt.target;
@@ -124,7 +155,6 @@
         var targetSource = target.getAttribute('src');
         var commentsList = bigPicture.querySelector('.social__comments');
         var bigPictureCloseButton = bigPicture.querySelector('#picture-cancel');
-        var commentsLoadButton = bigPicture.querySelector('.comments-loader');
 
         for (var i = 0; i < data.length; i++) {
           if (targetSource === data[i].url) {
@@ -138,28 +168,7 @@
               commentsList.removeChild(comment);
             });
 
-            var appendComments = function () {
-              for (var j = 0; j < data[i].comments.length; j++) {
-                var comment = commentTemplate.cloneNode(true);
-                var commentIndex = bigPicture.querySelectorAll('.social__comment').length;
-
-                comment.querySelector('img').setAttribute('src', data[i].comments[commentIndex].avatar);
-                comment.querySelector('img').setAttribute('alt', data[i].comments[commentIndex].name);
-                comment.querySelector('.social__text').textContent = data[i].comments[commentIndex].message;
-                bigPicture.querySelector('.social__comment-count').textContent = commentIndex + 1 + ' из ' + data[i].comments.length + ' комментариев';
-                commentsList.appendChild(comment);
-
-                var commentsCount = bigPicture.querySelectorAll('.social__comment').length;
-
-                if (j === (COMMENTS_PORTION - 1)) {
-                  break;
-                } else if (commentsCount === data[i].comments.length) {
-                  commentsLoadButton.classList.add('hidden');
-                  break;
-                }
-              }
-            };
-            appendComments();
+            appendComments(i, commentsList, commentTemplate);
             break;
           }
         }
@@ -181,19 +190,12 @@
         };
 
         var loadButtonClickHandler = function () {
-          appendComments();
+          appendComments(i, commentsList, commentTemplate);
         };
 
         bigPictureCloseButton.addEventListener('click', bigPictureCloseButtonHandler);
         document.addEventListener('keydown', bigPictureEscHandler);
         commentsLoadButton.addEventListener('click', loadButtonClickHandler);
-      }
-    };
-
-    var bigPictureEnterHandler = function (e) {
-      if ((e.keyCode === ENTER_KEY) && (e.target.tagName === 'A')) {
-        var image = e.target.querySelector('img');
-        photoClickHandler(e, image);
       }
     };
 
