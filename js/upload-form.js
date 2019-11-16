@@ -3,6 +3,16 @@
 (function () {
 
   var ESC_KEY = 27;
+  var TAG_MIN_LENGTH = 2;
+  var TAG_MAX_LENGTH = 20;
+  var TAG_MAX_AMOUNT = 5;
+  var COMMENT_MAX_LENGTH = 140;
+  var TAG_START_ERROR = 'Хештег должен начинаться с #';
+  var TAG_SHORT_ERROR = 'Хештег должен быть не короче двух символов';
+  var TAG_LONG_ERROR = 'Максимальная длина хештега — 20 символов';
+  var TAG_OVERDOSE_ERROR = 'Не более 5 хештегов';
+  var TAG_DUPLICATE_ERROR = 'Хештеги не должны повторяться';
+  var COMMENT_LONG_ERROR = 'Комментарий не должен быть больше 140 символов';
 
   var uploadField = document.querySelector('#upload-file');
   var editingForm = document.querySelector('.img-upload__overlay');
@@ -10,12 +20,12 @@
   var zoomButtons = document.querySelectorAll('button.scale__control');
   var effectsList = document.querySelector('.effects__list');
   var tagInput = document.querySelector('.text__hashtags');
-  var validTags = [];
   var commentInput = document.querySelector('.text__description');
   var form = document.querySelector('#upload-select-image');
   var checkboxOriginal = document.querySelector('#effect-none');
   var uploadSuccessMessage = document.querySelector('#success').content;
   var submitButton = form.querySelector('#upload-submit');
+  // var badInputs = [];
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -78,32 +88,26 @@
     }
   };
 
-  var checkUniqueTag = function (tag) {
-    for (var index = 0; index < validTags.length; index++) {
-      if (validTags[index] === tag.toLowerCase()) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  var validateTag = function (tag) {
-    if (tag.length > 0) {
-      switch (true) {
-        case checkUniqueTag(tag):
-          return 'Хештеги не должны повторяться';
-        case validTags.length > 5:
-          return 'Не больше 5 хештегов';
-        case tag.length < 2:
-          return 'Хештег должен быть не короче двух символов';
-        case tag.length > 20:
-          return 'Максимальная длина хештега — 20 символов';
-        case tag.charAt(0) !== '#':
-          return 'Хештег должен начинаться с #';
-        default:
-          validTags.push(tag.toLowerCase());
-          return '';
+  var checkTags = function (tags) {
+    for (var i = 0; i < tags.length; i++) {
+      if (tags[i].charAt(0) !== '#') {
+        return TAG_START_ERROR;
+      } else if (tags[i].length < TAG_MIN_LENGTH) {
+        return TAG_SHORT_ERROR;
+      } else if (tags[i].length > TAG_MAX_LENGTH) {
+        return TAG_LONG_ERROR;
+      } else if (tags.length > TAG_MAX_AMOUNT) {
+        return TAG_OVERDOSE_ERROR;
+      } else if (tags.length > 1) {
+        var duplicates = 0;
+        for (var j = 0; j < tags.length; j++) {
+          if (tags[i].toLowerCase() === tags[j].toLowerCase()) {
+            duplicates++;
+            if (duplicates > 1) {
+              return TAG_DUPLICATE_ERROR;
+            }
+          }
+        }
       }
     }
     return '';
@@ -111,21 +115,20 @@
 
   var tagInputHandler = function (evt) {
     var target = evt.target;
-    var tags = evt.target.value.split(/,| |, /);
+    var tags = target.value.split(' ');
     for (var j = 0; j < tags.length; j++) {
-      var validity = validateTag(tags[j]);
+      var validity = checkTags(tags);
       target.setCustomValidity(validity);
       if (validity.length) {
         target.reportValidity();
       }
     }
-    validTags = [];
   };
 
   var commentInputHandler = function (evt) {
     var target = evt.target;
-    if (target.value.length > 140) {
-      target.setCustomValidity('Комментарий не должен быть больше 140 символов');
+    if (target.value.length > COMMENT_MAX_LENGTH) {
+      target.setCustomValidity(COMMENT_LONG_ERROR);
     } else {
       target.setCustomValidity('');
     }
@@ -217,10 +220,16 @@
 
   var submitButtonClickHandler = function () {
     var invalidInputs = form.querySelectorAll(':invalid');
+    invalidInputs.forEach(function (badinput) {
+      if (badinput.tagName !== 'FIELDSET') {
+        badinput.style.outline = '5px dotted red';
+      }
+    });
 
-    invalidInputs.forEach(function (input) {
-      if (input.tagName !== 'FIELDSET') {
-        input.style.outline = '5px dotted red';
+    var goodInputs = form.querySelectorAll(':valid');
+    goodInputs.forEach(function (goodinput) {
+      if (goodinput.tagName !== 'FIELDSET') {
+        goodinput.style.outline = '0px dotted red';
       }
     });
   };

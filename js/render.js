@@ -180,7 +180,6 @@
           document.removeEventListener('keydown', bigPictureEscHandler);
           commentsLoadButton.removeEventListener('click', loadButtonClickHandler);
           commentsLoadButton.classList.remove('hidden');
-
         };
 
         var bigPictureEscHandler = function (event) {
