@@ -7,7 +7,7 @@
   var TAG_MAX_LENGTH = 20;
   var TAG_MAX_AMOUNT = 5;
   var COMMENT_MAX_LENGTH = 140;
-  var TAG_START_ERROR = 'Хештег должен начинаться с #';
+  var TAG_START_ERROR = 'Хэштеги должны начинаться с # и разделяться пробелами';
   var TAG_SHORT_ERROR = 'Хештег должен быть не короче двух символов';
   var TAG_LONG_ERROR = 'Максимальная длина хештега — 20 символов';
   var TAG_OVERDOSE_ERROR = 'Не более 5 хештегов';
@@ -25,7 +25,6 @@
   var checkboxOriginal = document.querySelector('#effect-none');
   var uploadSuccessMessage = document.querySelector('#success').content;
   var submitButton = form.querySelector('#upload-submit');
-  // var badInputs = [];
 
   var uploadFieldHandler = function () {
     editingForm.classList.remove('hidden');
@@ -89,22 +88,24 @@
   };
 
   var checkTags = function (tags) {
-    for (var i = 0; i < tags.length; i++) {
-      if (tags[i].charAt(0) !== '#') {
-        return TAG_START_ERROR;
-      } else if (tags[i].length < TAG_MIN_LENGTH) {
-        return TAG_SHORT_ERROR;
-      } else if (tags[i].length > TAG_MAX_LENGTH) {
-        return TAG_LONG_ERROR;
-      } else if (tags.length > TAG_MAX_AMOUNT) {
-        return TAG_OVERDOSE_ERROR;
-      } else if (tags.length > 1) {
-        var duplicates = 0;
-        for (var j = 0; j < tags.length; j++) {
-          if (tags[i].toLowerCase() === tags[j].toLowerCase()) {
-            duplicates++;
-            if (duplicates > 1) {
-              return TAG_DUPLICATE_ERROR;
+    if (tags[0].length > 0) {
+      for (var i = 0; i < tags.length; i++) {
+        if (!tags[i].match(/^#[^#]*$/)) {
+          return TAG_START_ERROR;
+        } else if (tags[i].length < TAG_MIN_LENGTH) {
+          return TAG_SHORT_ERROR;
+        } else if (tags[i].length > TAG_MAX_LENGTH) {
+          return TAG_LONG_ERROR;
+        } else if (tags.length > TAG_MAX_AMOUNT) {
+          return TAG_OVERDOSE_ERROR;
+        } else if (tags.length > 1) {
+          var duplicates = 0;
+          for (var j = 0; j < tags.length; j++) {
+            if (tags[i].toLowerCase() === tags[j].toLowerCase()) {
+              duplicates++;
+              if (duplicates > 1) {
+                return TAG_DUPLICATE_ERROR;
+              }
             }
           }
         }
@@ -115,7 +116,8 @@
 
   var tagInputHandler = function (evt) {
     var target = evt.target;
-    var tags = target.value.split(' ');
+    var tags = target.value.replace(/\s+/g, ' ').trim().split(' ');
+
     for (var j = 0; j < tags.length; j++) {
       var validity = checkTags(tags);
       target.setCustomValidity(validity);
